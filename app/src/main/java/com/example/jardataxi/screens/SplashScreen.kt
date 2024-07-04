@@ -51,10 +51,10 @@ fun SplashScreen(
     }
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun LottiePreview() {
-    JardaTaxiTheme {
+    JardaTaxiTheme{
         SplashScreen(navController = rememberNavController())
     }
 }

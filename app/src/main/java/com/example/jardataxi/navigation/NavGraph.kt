@@ -4,12 +4,14 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
+import com.example.jardataxi.DailyInputViewModel
 import com.example.jardataxi.screens.HomeScreen
 import com.example.jardataxi.screens.SplashScreen
 
 @Composable
 fun NavGraph(
-    navController: NavHostController
+    navController: NavHostController,
+    viewModel: DailyInputViewModel
 ) {
     NavHost(
         navController = navController,
@@ -23,7 +25,7 @@ fun NavGraph(
         composable(
             route = Screen.Home.route
         ) {
-            HomeScreen()
+            HomeScreen(viewModel)
         }
     }
 }
