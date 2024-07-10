@@ -20,7 +20,10 @@ val Typography = Typography(
 )
 
 val rubikFamily = FontFamily(
-    Font(R.font.rubik)
+    Font(R.font.rubik, FontWeight.Normal),
+    Font(R.font.rubik_medium, FontWeight.Medium),
+    Font(R.font.rubik_bold, FontWeight.Bold),
+    Font(R.font.rubik_extra_bold, FontWeight.ExtraBold)
 )
 
 val blackOpsFont = FontFamily(

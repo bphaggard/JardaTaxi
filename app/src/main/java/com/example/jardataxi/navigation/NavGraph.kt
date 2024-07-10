@@ -5,8 +5,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import com.example.jardataxi.DailyInputViewModel
-import com.example.jardataxi.screens.HomeScreen
-import com.example.jardataxi.screens.SplashScreen
+import com.example.jardataxi.presentation.screens.HomeScreen
+import com.example.jardataxi.presentation.screens.SplashScreen
 
 @Composable
 fun NavGraph(

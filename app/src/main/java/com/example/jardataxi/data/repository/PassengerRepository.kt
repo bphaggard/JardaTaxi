@@ -4,7 +4,7 @@ import com.example.jardataxi.data.DailyInput
 import com.example.jardataxi.data.local.PassengerDao
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.util.Date
+import java.time.LocalDateTime
 
 class PassengerRepository(private val dao: PassengerDao) {
     suspend fun addInput(dailyInput: DailyInput) {
@@ -17,10 +17,21 @@ class PassengerRepository(private val dao: PassengerDao) {
         dao.deletePassengerById(id)
     }
 
-    suspend fun getWeeklyTotal(startDate: Date, endDate: Date): Int {
+    suspend fun getPackaTotalForWeek(startDate: LocalDateTime, endDate: LocalDateTime): Int {
         return withContext(Dispatchers.IO) {
-            val inputs = dao.getWeeklyInputs(startDate, endDate)
-            inputs.sumOf { it.amount }
+            dao.getPackaTotalForWeek(startDate, endDate)
+        }
+    }
+
+    suspend fun getIgorTotalForWeek(startDate: LocalDateTime, endDate: LocalDateTime): Int {
+        return withContext(Dispatchers.IO) {
+            dao.getIgorTotalForWeek(startDate, endDate)
+        }
+    }
+
+    suspend fun getPatrikTotalForWeek(startDate: LocalDateTime, endDate: LocalDateTime): Int {
+        return withContext(Dispatchers.IO) {
+            dao.getPatrikTotalForWeek(startDate, endDate)
         }
     }
 }

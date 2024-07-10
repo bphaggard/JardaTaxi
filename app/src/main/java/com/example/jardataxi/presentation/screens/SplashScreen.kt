@@ -1,4 +1,4 @@
-package com.example.jardataxi.screens
+package com.example.jardataxi.presentation.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
