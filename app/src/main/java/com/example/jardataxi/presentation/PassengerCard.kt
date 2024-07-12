@@ -18,9 +18,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -36,10 +33,34 @@ fun PassengerCard(
     name: String,
     viewModel: DailyInputViewModel
 ) {
-
+    // Passenger Image Mapping
     val nameImage = imageMap[name] ?: R.drawable.taxi_passenger
-    var rideHalfCount by remember { mutableIntStateOf(0) }
-    var rideFullCount by remember { mutableIntStateOf(0) }
+
+    // Half Ride Counter
+    val rideIgorHalf by viewModel.rideIgorHalfCount
+    val ridePackaHalf by viewModel.ridePackaHalfCount
+    val ridePatrikHalf by viewModel.ridePatrikHalfCount
+
+    val rideHalfCount = when (name) {
+        "IGOR" -> rideIgorHalf
+        "PACKA" -> ridePackaHalf
+        "PATRIK" -> ridePatrikHalf
+        else -> 0
+    }
+
+    // Full Ride Counter
+    val rideIgorFull by viewModel.rideIgorFullCount
+    val ridePackaFull by viewModel.ridePackaFullCount
+    val ridePatrikFull by viewModel.ridePatrikFullCount
+
+    val rideFullCount = when (name) {
+        "IGOR" -> rideIgorFull
+        "PACKA" -> ridePackaFull
+        "PATRIK" -> ridePatrikFull
+        else -> 0
+    }
+
+    // Buttons Enabled
     val isHalfButtonEnabled by when (name) {
         "IGOR" -> viewModel.isIgorHalfButtonEnabled
         "PACKA" -> viewModel.isPackaHalfButtonEnabled
@@ -90,7 +111,7 @@ fun PassengerCard(
                             "PATRIK" -> viewModel.setInputPatrikHalf()
                         }
                         viewModel.setHalfButtonEnabled(name)
-                        rideHalfCount ++
+                        viewModel.setRideHalfCount(name)
                     },
                     enabled = isHalfButtonEnabled && isFullButtonEnabled
                 ) {
@@ -109,7 +130,7 @@ fun PassengerCard(
                             "PATRIK" -> viewModel.setInputPatrikFull()
                         }
                         viewModel.setFullButtonEnabled(name)
-                        rideFullCount ++
+                        viewModel.setFullRideCount(name)
                     },
                     enabled = isFullButtonEnabled && isHalfButtonEnabled
                 ) {

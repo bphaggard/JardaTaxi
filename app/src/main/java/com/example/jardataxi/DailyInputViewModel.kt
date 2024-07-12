@@ -1,5 +1,6 @@
 package com.example.jardataxi
 
+import androidx.compose.runtime.MutableIntState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -8,6 +9,9 @@ import androidx.lifecycle.viewModelScope
 import com.example.jardataxi.data.DailyInput
 import com.example.jardataxi.data.repository.PassengerRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import javax.inject.Inject
@@ -16,6 +20,50 @@ import javax.inject.Inject
 class DailyInputViewModel @Inject constructor(
     private val repository: PassengerRepository
 ): ViewModel() {
+
+    // All Database Data
+    private val _allPassengers = MutableStateFlow<List<DailyInput>>(emptyList())
+    val allPassengers: StateFlow<List<DailyInput>> = _allPassengers
+
+    fun showDatabase(): Flow<List<DailyInput>> {
+        return repository.getAllPassengers()
+    }
+
+    // Ride Counter
+    private val _rideIgorHalfCount = mutableIntStateOf(0)
+    val rideIgorHalfCount: MutableIntState = _rideIgorHalfCount
+
+    private val _rideIgorFullCount = mutableIntStateOf(0)
+    val rideIgorFullCount: MutableIntState = _rideIgorFullCount
+
+    private val _ridePackaHalfCount = mutableIntStateOf(0)
+    val ridePackaHalfCount: MutableIntState = _ridePackaHalfCount
+
+    private val _ridePackaFullCount = mutableIntStateOf(0)
+    val ridePackaFullCount: MutableIntState = _ridePackaFullCount
+
+    private val _ridePatrikHalfCount = mutableIntStateOf(0)
+    val ridePatrikHalfCount: MutableIntState = _ridePatrikHalfCount
+
+    private val _ridePatrikFullCount = mutableIntStateOf(0)
+    val ridePatrikFullCount: MutableIntState = _ridePatrikFullCount
+
+    fun setRideHalfCount(name: String) {
+        when (name) {
+            "IGOR" -> _rideIgorHalfCount.intValue = 1
+            "PACKA" -> _ridePackaHalfCount.intValue = 1
+            "PATRIK" -> _ridePatrikHalfCount.intValue = 1
+        }
+    }
+
+    fun setFullRideCount(name: String) {
+        when (name) {
+            "IGOR" -> _rideIgorFullCount.intValue = 1
+            "PACKA" -> _ridePackaFullCount.intValue = 1
+            "PATRIK" -> _ridePatrikFullCount.intValue = 1
+        }
+    }
+
     // Half Button States
     private val _isIgorHalfButtonEnabled = mutableStateOf(true)
     val isIgorHalfButtonEnabled: State<Boolean> get() = _isIgorHalfButtonEnabled
@@ -105,15 +153,33 @@ class DailyInputViewModel @Inject constructor(
         }
     }
 
+    fun deleteDatabase() {
+        viewModelScope.launch {
+            repository.deletePassengers()
+        }
+    }
+
     fun clearAllInputs() {
-        _inputIgor.intValue = 0
-        _inputPacka.intValue = 0
-        _inputPatrik.intValue = 0
-        _isIgorHalfButtonEnabled.value = true
-        _isIgorFullButtonEnabled.value = true
-        _isPackaHalfButtonEnabled.value = true
-        _isPackaFullButtonEnabled.value = true
-        _isPatrikHalfButtonEnabled.value = true
-        _isPatrikFullButtonEnabled.value = true
+        val inputs = listOf(_inputIgor, _inputPacka, _inputPatrik)
+        val buttonStates = listOf(
+            _isIgorHalfButtonEnabled,
+            _isIgorFullButtonEnabled,
+            _isPackaHalfButtonEnabled,
+            _isPackaFullButtonEnabled,
+            _isPatrikHalfButtonEnabled,
+            _isPatrikFullButtonEnabled
+        )
+        val rideCounts = listOf(
+            _rideIgorHalfCount,
+            _rideIgorFullCount,
+            _ridePackaHalfCount,
+            _ridePackaFullCount,
+            _ridePatrikHalfCount,
+            _ridePatrikFullCount
+        )
+
+        inputs.forEach { it.intValue = 0 }
+        buttonStates.forEach { it.value = true }
+        rideCounts.forEach { it.intValue = 0 }
     }
 }
