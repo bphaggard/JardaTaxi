@@ -9,10 +9,10 @@ import androidx.lifecycle.viewModelScope
 import com.example.jardataxi.data.DailyInput
 import com.example.jardataxi.data.repository.PassengerRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import java.time.DayOfWeek
 import java.time.LocalDateTime
 import javax.inject.Inject
 
@@ -20,14 +20,6 @@ import javax.inject.Inject
 class DailyInputViewModel @Inject constructor(
     private val repository: PassengerRepository
 ): ViewModel() {
-
-    // All Database Data
-    private val _allPassengers = MutableStateFlow<List<DailyInput>>(emptyList())
-    val allPassengers: StateFlow<List<DailyInput>> = _allPassengers
-
-    fun showDatabase(): Flow<List<DailyInput>> {
-        return repository.getAllPassengers()
-    }
 
     // Ride Counter
     private val _rideIgorHalfCount = mutableIntStateOf(0)
@@ -135,13 +127,43 @@ class DailyInputViewModel @Inject constructor(
         _inputPatrik.intValue += 100
     }
 
+//    fun addDailyInput(dailyInput: DailyInput) {
+//        viewModelScope.launch {
+//            repository.addInput(dailyInput)
+//        }
+//    }
     fun addDailyInput(dailyInput: DailyInput) {
         viewModelScope.launch {
             repository.addInput(dailyInput)
+            val startDate = LocalDateTime.now().with(DayOfWeek.MONDAY)
+            val endDate = startDate.plusDays(6)
+            fetchWeeklyTotals(startDate, endDate) // Fetch weekly totals after adding data
         }
     }
 
-    fun getWeeklyTotal(field: String, startDate: LocalDateTime, endDate: LocalDateTime, callback: (Int) -> Unit) {
+    // Weekly Total for Passengers
+    private val _packaWeeklyTotal = MutableStateFlow(0)
+    val packaWeeklyTotal: StateFlow<Int> = _packaWeeklyTotal
+
+    private val _igorWeeklyTotal = MutableStateFlow(0)
+    val igorWeeklyTotal: StateFlow<Int> = _igorWeeklyTotal
+
+    private val _patrikWeeklyTotal = MutableStateFlow(0)
+    val patrikWeeklyTotal: StateFlow<Int> = _patrikWeeklyTotal
+
+    fun fetchWeeklyTotals(startDate: LocalDateTime, endDate: LocalDateTime) {
+        getWeeklyTotal("packa", startDate, endDate) { total ->
+            _packaWeeklyTotal.value = total
+        }
+        getWeeklyTotal("igor", startDate, endDate) { total ->
+            _igorWeeklyTotal.value = total
+        }
+        getWeeklyTotal("patrik", startDate, endDate) { total ->
+            _patrikWeeklyTotal.value = total
+        }
+    }
+
+    private fun getWeeklyTotal(field: String, startDate: LocalDateTime, endDate: LocalDateTime, callback: (Int) -> Unit) {
         viewModelScope.launch {
             val total = when (field) {
                 "packa" -> repository.getPackaTotalForWeek(startDate, endDate)
