@@ -76,7 +76,7 @@ fun PassengerCard(
 
     Card(
         modifier = Modifier
-            .fillMaxWidth(0.85f)
+            .fillMaxWidth(0.9f)
             .wrapContentHeight(Alignment.CenterVertically),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surfaceVariant)
@@ -84,21 +84,25 @@ fun PassengerCard(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(12.dp),
+                .padding(10.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Image(
                 painter = painterResource(id = nameImage),
                 contentDescription = null,
-                modifier = Modifier.size(50.dp))
+                modifier = Modifier.size(48.dp))
             Spacer(modifier = Modifier.width(10.dp))
-            Text(
-                text = name,
-                fontFamily = rubikFamily,
-                fontWeight = FontWeight.Black,
-                fontSize = 20.sp
-            )
+            Column(
+                modifier = Modifier.fillMaxWidth(0.3f),
+                horizontalAlignment = Alignment.Start
+            ) {
+                Text(
+                    text = name,
+                    fontFamily = rubikFamily,
+                    fontWeight = FontWeight.Black
+                )
+            }
             Spacer(modifier = Modifier.width(10.dp))
             Column(
                 horizontalAlignment = Alignment.End
@@ -117,8 +121,7 @@ fun PassengerCard(
                 ) {
                     Text(
                         text = "Jednosměrná: $rideHalfCount",
-                        fontFamily = rubikFamily,
-                        fontWeight = FontWeight.Medium
+                        fontFamily = rubikFamily
                     )
                 }
                 Spacer(modifier = Modifier.width(4.dp))
@@ -136,8 +139,7 @@ fun PassengerCard(
                 ) {
                     Text(
                         text = "Zpáteční: $rideFullCount",
-                        fontFamily = rubikFamily,
-                        fontWeight = FontWeight.Medium
+                        fontFamily = rubikFamily
                     )
                 }
             }

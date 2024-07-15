@@ -16,6 +16,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -24,7 +25,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -40,8 +40,6 @@ import com.example.jardataxi.data.DailyInput
 import com.example.jardataxi.presentation.PassengerCard
 import com.example.jardataxi.presentation.getCurrentWeek
 import com.example.jardataxi.ui.theme.rubikFamily
-import java.time.DayOfWeek
-import java.time.LocalDateTime
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -57,13 +55,6 @@ fun HomeScreen(viewModel: DailyInputViewModel) {
     val packaWeeklyTotal by viewModel.packaWeeklyTotal.collectAsState()
     val igorWeeklyTotal by viewModel.igorWeeklyTotal.collectAsState()
     val patrikWeeklyTotal by viewModel.patrikWeeklyTotal.collectAsState()
-
-    val startDate = LocalDateTime.now().with(DayOfWeek.MONDAY)
-    val endDate = startDate.plusDays(6)
-
-    LaunchedEffect(Unit) {
-        viewModel.fetchWeeklyTotals(startDate, endDate)
-    }
 
     Scaffold(
         topBar = {
@@ -105,7 +96,6 @@ fun HomeScreen(viewModel: DailyInputViewModel) {
                             )
                         )
                             viewModel.clearAllInputs()
-                            viewModel.fetchWeeklyTotals(startDate, endDate)
                             Toast.makeText(context, "Jízdy uloženy!", Toast.LENGTH_SHORT).show()
                         }
                     ) {
@@ -118,8 +108,8 @@ fun HomeScreen(viewModel: DailyInputViewModel) {
                     Spacer(modifier = Modifier.height(20.dp))
                     Card(
                         modifier = Modifier
-                            .fillMaxWidth(0.85f)
-                            .height(200.dp),
+                            .fillMaxWidth(0.9f)
+                            .height(250.dp),
                         shape = RoundedCornerShape(22.dp),
                         colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surfaceVariant)
                     ) {
@@ -142,19 +132,24 @@ fun HomeScreen(viewModel: DailyInputViewModel) {
                             Spacer(modifier = Modifier.height(8.dp))
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
-                                verticalAlignment = Alignment.CenterVertically
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween
                             ) {
                                 Text(
                                     text = "Týden: $currentWeek",
                                     fontSize = 16.sp
                                 )
+                                Text(
+                                    text = "Zaplaceno:",
+                                    fontSize = 16.sp
+                                )
                             }
                             Spacer(modifier = Modifier.height(8.dp))
-                            RowItem(name = "IGOR", igorWeeklyTotal)
+                            RowItem(name = "IGOR", igorWeeklyTotal, viewModel)
                             Spacer(modifier = Modifier.height(4.dp))
-                            RowItem(name = "PACKA", packaWeeklyTotal)
+                            RowItem(name = "PACKA", packaWeeklyTotal, viewModel)
                             Spacer(modifier = Modifier.height(4.dp))
-                            RowItem(name = "PATRIK", patrikWeeklyTotal)
+                            RowItem(name = "PATRIK", patrikWeeklyTotal, viewModel)
                             Spacer(modifier = Modifier.height(4.dp))
                         }
                     }
@@ -162,7 +157,6 @@ fun HomeScreen(viewModel: DailyInputViewModel) {
                     Button(
                         onClick = {
                             viewModel.deleteDatabase()
-                            viewModel.fetchWeeklyTotals(startDate, endDate)
                         }
                     ) {
                         Text(
@@ -180,21 +174,47 @@ fun HomeScreen(viewModel: DailyInputViewModel) {
 @Composable
 fun RowItem(
     name: String,
-    value: Int
+    value: Int,
+    viewModel: DailyInputViewModel
 ) {
+    val igorCheckBox by viewModel.checkBoxStateIgor.collectAsState()
+    val packaCheckBox by viewModel.checkBoxStatePacka.collectAsState()
+    val patrikCheckBox by viewModel.checkBoxStatePatrik.collectAsState()
+
     Row(
         modifier = Modifier
             .fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Text(
-            text = name,
-            fontFamily = rubikFamily,
-            fontWeight = FontWeight.Black,
-            fontSize = 16.sp
-        )
+        Column(
+            modifier = Modifier.fillMaxWidth(0.3f),
+            horizontalAlignment = Alignment.Start
+        ) {
+            Text(
+                text = name,
+                fontFamily = rubikFamily,
+                fontWeight = FontWeight.Black,
+                fontSize = 16.sp
+            )
+        }
         Spacer(modifier = Modifier.width(10.dp))
         Text(text = value.toString())
+        Spacer(modifier = Modifier.width(10.dp))
+        Column(
+            horizontalAlignment = Alignment.End
+        ) {
+            Checkbox(
+                checked = when (name) {
+                    "IGOR" -> igorCheckBox
+                    "PACKA" -> packaCheckBox
+                    "PATRIK" -> patrikCheckBox
+                    else -> false
+                },
+                onCheckedChange = { checked ->
+                    viewModel.setCheckBoxState(name, checked)
+                }
+            )
+        }
     }
 }

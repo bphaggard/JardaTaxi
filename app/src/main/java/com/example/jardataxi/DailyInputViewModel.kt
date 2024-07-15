@@ -13,7 +13,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import java.time.DayOfWeek
+import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.LocalTime
 import javax.inject.Inject
 
 @HiltViewModel
@@ -135,9 +137,27 @@ class DailyInputViewModel @Inject constructor(
     fun addDailyInput(dailyInput: DailyInput) {
         viewModelScope.launch {
             repository.addInput(dailyInput)
-            val startDate = LocalDateTime.now().with(DayOfWeek.MONDAY)
-            val endDate = startDate.plusDays(6)
+            val startDate = LocalDate.now().with(DayOfWeek.MONDAY).atStartOfDay()
+            val endDate = startDate.plusDays(6).with(LocalTime.MAX)
             fetchWeeklyTotals(startDate, endDate) // Fetch weekly totals after adding data
+        }
+    }
+
+    // CheckBox State Payed
+    private val _checkBoxStateIgor = MutableStateFlow(false)
+    val checkBoxStateIgor: StateFlow<Boolean> get() = _checkBoxStateIgor
+
+    private val _checkBoxStatePacka = MutableStateFlow(false)
+    val checkBoxStatePacka: StateFlow<Boolean> get() = _checkBoxStatePacka
+
+    private val _checkBoxStatePatrik = MutableStateFlow(false)
+    val checkBoxStatePatrik: StateFlow<Boolean> get() = _checkBoxStatePatrik
+
+    fun setCheckBoxState(name: String, checked: Boolean) {
+        when (name) {
+            "IGOR" -> _checkBoxStateIgor.value = checked
+            "PACKA" -> _checkBoxStatePacka.value = checked
+            "PATRIK" -> _checkBoxStatePatrik.value = checked
         }
     }
 
@@ -151,7 +171,13 @@ class DailyInputViewModel @Inject constructor(
     private val _patrikWeeklyTotal = MutableStateFlow(0)
     val patrikWeeklyTotal: StateFlow<Int> = _patrikWeeklyTotal
 
-    fun fetchWeeklyTotals(startDate: LocalDateTime, endDate: LocalDateTime) {
+    init {
+        val startDate = LocalDate.now().with(DayOfWeek.MONDAY).atStartOfDay()
+        val endDate = startDate.plusDays(6).with(LocalTime.MAX)
+        fetchWeeklyTotals(startDate, endDate)
+    }
+
+    private fun fetchWeeklyTotals(startDate: LocalDateTime, endDate: LocalDateTime) {
         getWeeklyTotal("packa", startDate, endDate) { total ->
             _packaWeeklyTotal.value = total
         }
