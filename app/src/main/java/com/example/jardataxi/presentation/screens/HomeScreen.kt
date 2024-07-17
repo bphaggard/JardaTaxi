@@ -5,14 +5,21 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -27,6 +34,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -51,10 +59,101 @@ fun HomeScreen(viewModel: DailyInputViewModel) {
 
     val context = LocalContext.current
     val currentWeek = remember { getCurrentWeek() }
+    val showDialog = remember { mutableStateOf(false) }
+
+    val passengersList by viewModel.getAllPassengers().collectAsState(initial = emptyList())
 
     val packaWeeklyTotal by viewModel.packaWeeklyTotal.collectAsState()
     val igorWeeklyTotal by viewModel.igorWeeklyTotal.collectAsState()
     val patrikWeeklyTotal by viewModel.patrikWeeklyTotal.collectAsState()
+    
+    if (showDialog.value) {
+        AlertDialog(
+            onDismissRequest = { showDialog.value = false },
+            title = {
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxHeight(0.8f),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Top
+                    ) {
+                        item { Row(
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(text = "Igor")
+                            Text(text = "Packa")
+                            Text(text = "Patrik")
+                        } }
+                        item { Spacer(modifier = Modifier.size(8.dp)) }
+                        item { HorizontalDivider() }
+                        item { Spacer(modifier = Modifier.size(8.dp)) }
+                        items(passengersList) {passenger ->
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxHeight()
+                                        .width(50.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.Center
+                                ) {
+                                    Text(
+                                        text = passenger.igor.toString(),
+                                        fontSize = 12.sp
+                                    )
+                                }
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxHeight()
+                                        .width(50.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.Center
+                                ) {
+                                    Text(
+                                        text = passenger.packa.toString(),
+                                        fontSize = 12.sp
+                                    )
+                                }
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxHeight()
+                                        .width(50.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.Center
+                                ) {
+                                    Text(
+                                        text = passenger.patrik.toString(),
+                                        fontSize = 12.sp
+                                    )
+                                }
+                            }
+                        }
+                    }
+            },
+            confirmButton = { 
+                Button(onClick = { 
+                    showDialog.value = false }) 
+                {
+                    Text(text = "Zavřít")
+                }
+            },
+            dismissButton = {
+                Button(onClick = {
+                    showDialog.value = false
+                    viewModel.deleteDatabase()
+                }) {
+                    Text(text = "Smazat Databázi")
+                }
+            }
+        )
+    }
 
     Scaffold(
         topBar = {
@@ -156,11 +255,11 @@ fun HomeScreen(viewModel: DailyInputViewModel) {
                     Spacer(modifier = Modifier.height(20.dp))
                     Button(
                         onClick = {
-                            viewModel.deleteDatabase()
+                            showDialog.value = true
                         }
                     ) {
                         Text(
-                            text = "Smazat Databázi",
+                            text = "Zobrazit Databázi",
                             fontFamily = rubikFamily,
                             fontWeight = FontWeight.Medium
                         )
@@ -180,7 +279,7 @@ fun RowItem(
     val igorCheckBox by viewModel.checkBoxStateIgor.collectAsState()
     val packaCheckBox by viewModel.checkBoxStatePacka.collectAsState()
     val patrikCheckBox by viewModel.checkBoxStatePatrik.collectAsState()
-
+    
     Row(
         modifier = Modifier
             .fillMaxWidth(),

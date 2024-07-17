@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.jardataxi.data.DailyInput
 import com.example.jardataxi.data.repository.PassengerRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -199,6 +200,10 @@ class DailyInputViewModel @Inject constructor(
             }
             callback(total)
         }
+    }
+
+    fun getAllPassengers(): Flow<List<DailyInput>> {
+        return repository.getAllPassengers()
     }
 
     fun deleteDatabase() {
