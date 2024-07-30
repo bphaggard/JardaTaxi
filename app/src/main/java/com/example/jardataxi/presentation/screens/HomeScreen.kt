@@ -12,8 +12,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -43,15 +41,16 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.jardataxi.DailyInputViewModel
-import com.example.jardataxi.data.DailyInput
+import com.example.jardataxi.domain.Passenger
 import com.example.jardataxi.presentation.PassengerCard
 import com.example.jardataxi.presentation.getCurrentWeek
 import com.example.jardataxi.ui.theme.rubikFamily
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(viewModel: DailyInputViewModel) {
+fun HomeScreen(viewModel: PassengerViewModel) {
 
     val rideIgor by viewModel.inputIgor
     val ridePacka by viewModel.inputPacka
@@ -71,71 +70,87 @@ fun HomeScreen(viewModel: DailyInputViewModel) {
         AlertDialog(
             onDismissRequest = { showDialog.value = false },
             title = {
-                    LazyColumn(
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxHeight(0.8f),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Top
+                ) {
+                    item { Row(
                         modifier = Modifier
-                            .fillMaxHeight(0.8f),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Top
+                            .fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        item { Row(
+                        DialogueText(title = "Igor")
+                        DialogueText(title = "Packa")
+                        DialogueText(title = "Patrik")
+                        DialogueText(title = "Date/Time")
+                    } }
+                    item { Spacer(modifier = Modifier.size(8.dp)) }
+                    item { HorizontalDivider() }
+                    item { Spacer(modifier = Modifier.size(8.dp)) }
+                    items(passengersList) {passenger ->
+                        val instant = passenger.date.toDate().toInstant()
+                        val dateTime = instant.atZone(ZoneId.systemDefault()).toLocalDateTime()
+                        val formatter = dateTime.format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss"))
+
+                        Row(
                             modifier = Modifier
                                 .fillMaxWidth(),
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            Text(text = "Igor")
-                            Text(text = "Packa")
-                            Text(text = "Patrik")
-                        } }
-                        item { Spacer(modifier = Modifier.size(8.dp)) }
-                        item { HorizontalDivider() }
-                        item { Spacer(modifier = Modifier.size(8.dp)) }
-                        items(passengersList) {passenger ->
-                            Row(
+                            Column(
                                 modifier = Modifier
-                                    .fillMaxWidth(),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.SpaceBetween
+                                    .fillMaxHeight()
+                                    .width(50.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center
                             ) {
-                                Column(
-                                    modifier = Modifier
-                                        .fillMaxHeight()
-                                        .width(50.dp),
-                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                    verticalArrangement = Arrangement.Center
-                                ) {
-                                    Text(
-                                        text = passenger.igor.toString(),
-                                        fontSize = 12.sp
-                                    )
-                                }
-                                Column(
-                                    modifier = Modifier
-                                        .fillMaxHeight()
-                                        .width(50.dp),
-                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                    verticalArrangement = Arrangement.Center
-                                ) {
-                                    Text(
-                                        text = passenger.packa.toString(),
-                                        fontSize = 12.sp
-                                    )
-                                }
-                                Column(
-                                    modifier = Modifier
-                                        .fillMaxHeight()
-                                        .width(50.dp),
-                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                    verticalArrangement = Arrangement.Center
-                                ) {
-                                    Text(
-                                        text = passenger.patrik.toString(),
-                                        fontSize = 12.sp
-                                    )
-                                }
+                                Text(
+                                    text = passenger.igor.toString(),
+                                    fontSize = 12.sp
+                                )
+                            }
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxHeight()
+                                    .width(50.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center
+                            ) {
+                                Text(
+                                    text = passenger.packa.toString(),
+                                    fontSize = 12.sp
+                                )
+                            }
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxHeight()
+                                    .width(50.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center
+                            ) {
+                                Text(
+                                    text = passenger.patrik.toString(),
+                                    fontSize = 12.sp
+                                )
+                            }
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxHeight(),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center
+                            ) {
+                                Text(
+                                    text = formatter,
+                                    fontSize = 12.sp
+                                )
                             }
                         }
                     }
+                }
             },
             confirmButton = { 
                 Button(onClick = { 
@@ -188,7 +203,7 @@ fun HomeScreen(viewModel: DailyInputViewModel) {
                     Spacer(modifier = Modifier.height(20.dp))
                     Button(
                         onClick = { viewModel.addDailyInput(
-                            DailyInput(
+                            Passenger(
                                 igor = rideIgor,
                                 packa = ridePacka,
                                 patrik = ridePatrik
@@ -274,7 +289,7 @@ fun HomeScreen(viewModel: DailyInputViewModel) {
 fun RowItem(
     name: String,
     value: Int,
-    viewModel: DailyInputViewModel
+    viewModel: PassengerViewModel
 ) {
     val igorCheckBox by viewModel.checkBoxStateIgor.collectAsState()
     val packaCheckBox by viewModel.checkBoxStatePacka.collectAsState()
@@ -316,4 +331,13 @@ fun RowItem(
             )
         }
     }
+}
+
+@Composable
+fun DialogueText(title: String) {
+    Text(
+        text = title,
+        fontSize = 16.sp,
+        fontWeight = FontWeight.Bold
+    )
 }

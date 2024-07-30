@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.jardataxi.navigation.NavGraph
+import com.example.jardataxi.presentation.screens.PassengerViewModel
 import com.example.jardataxi.ui.theme.JardaTaxiTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -19,7 +20,7 @@ import dagger.hilt.android.AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
     private lateinit var navController: NavHostController
-    private val viewModel: DailyInputViewModel by viewModels()
+    private val viewModel: PassengerViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -85,4 +86,8 @@ dependencies {
 
     //Coil library
     implementation (libs.coil.compose)
+
+    //Firebase
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.firestore)
 }

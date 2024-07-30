@@ -1,47 +1,46 @@
-package com.example.jardataxi
+package com.example.jardataxi.presentation.screens
 
-import androidx.compose.runtime.MutableIntState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.jardataxi.data.DailyInput
-import com.example.jardataxi.data.repository.PassengerRepository
+import com.example.jardataxi.domain.model.PassengerRepository
+import com.example.jardataxi.domain.Passenger
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import java.time.DayOfWeek
-import java.time.LocalDate
+import java.time.Instant
 import java.time.LocalDateTime
 import java.time.LocalTime
+import java.time.ZoneOffset
 import javax.inject.Inject
 
 @HiltViewModel
-class DailyInputViewModel @Inject constructor(
+class PassengerViewModel @Inject constructor(
     private val repository: PassengerRepository
 ): ViewModel() {
 
     // Ride Counter
     private val _rideIgorHalfCount = mutableIntStateOf(0)
-    val rideIgorHalfCount: MutableIntState = _rideIgorHalfCount
+    val rideIgorHalfCount: State<Int> = _rideIgorHalfCount
 
     private val _rideIgorFullCount = mutableIntStateOf(0)
-    val rideIgorFullCount: MutableIntState = _rideIgorFullCount
+    val rideIgorFullCount: State<Int> = _rideIgorFullCount
 
     private val _ridePackaHalfCount = mutableIntStateOf(0)
-    val ridePackaHalfCount: MutableIntState = _ridePackaHalfCount
+    val ridePackaHalfCount: State<Int> = _ridePackaHalfCount
 
     private val _ridePackaFullCount = mutableIntStateOf(0)
-    val ridePackaFullCount: MutableIntState = _ridePackaFullCount
+    val ridePackaFullCount: State<Int> = _ridePackaFullCount
 
     private val _ridePatrikHalfCount = mutableIntStateOf(0)
-    val ridePatrikHalfCount: MutableIntState = _ridePatrikHalfCount
+    val ridePatrikHalfCount: State<Int> = _ridePatrikHalfCount
 
     private val _ridePatrikFullCount = mutableIntStateOf(0)
-    val ridePatrikFullCount: MutableIntState = _ridePatrikFullCount
+    val ridePatrikFullCount: State<Int> = _ridePatrikFullCount
 
     fun setRideHalfCount(name: String) {
         when (name) {
@@ -130,15 +129,10 @@ class DailyInputViewModel @Inject constructor(
         _inputPatrik.intValue += 100
     }
 
-//    fun addDailyInput(dailyInput: DailyInput) {
-//        viewModelScope.launch {
-//            repository.addInput(dailyInput)
-//        }
-//    }
-    fun addDailyInput(dailyInput: DailyInput) {
+    fun addDailyInput(dailyInput: Passenger) {
         viewModelScope.launch {
             repository.addInput(dailyInput)
-            val startDate = LocalDate.now().with(DayOfWeek.MONDAY).atStartOfDay()
+            val startDate = LocalDateTime.now().with(LocalTime.MIN)
             val endDate = startDate.plusDays(6).with(LocalTime.MAX)
             fetchWeeklyTotals(startDate, endDate) // Fetch weekly totals after adding data
         }
@@ -173,24 +167,27 @@ class DailyInputViewModel @Inject constructor(
     val patrikWeeklyTotal: StateFlow<Int> = _patrikWeeklyTotal
 
     init {
-        val startDate = LocalDate.now().with(DayOfWeek.MONDAY).atStartOfDay()
+        val startDate = LocalDateTime.now().with(LocalTime.MIN)
         val endDate = startDate.plusDays(6).with(LocalTime.MAX)
         fetchWeeklyTotals(startDate, endDate)
     }
 
     private fun fetchWeeklyTotals(startDate: LocalDateTime, endDate: LocalDateTime) {
-        getWeeklyTotal("packa", startDate, endDate) { total ->
+        val startInstant = startDate.toInstant(ZoneOffset.UTC)
+        val endInstant = endDate.toInstant(ZoneOffset.UTC)
+
+        getWeeklyTotal("packa", startInstant, endInstant) { total ->
             _packaWeeklyTotal.value = total
         }
-        getWeeklyTotal("igor", startDate, endDate) { total ->
+        getWeeklyTotal("igor", startInstant, endInstant) { total ->
             _igorWeeklyTotal.value = total
         }
-        getWeeklyTotal("patrik", startDate, endDate) { total ->
+        getWeeklyTotal("patrik", startInstant, endInstant) { total ->
             _patrikWeeklyTotal.value = total
         }
     }
 
-    private fun getWeeklyTotal(field: String, startDate: LocalDateTime, endDate: LocalDateTime, callback: (Int) -> Unit) {
+    private fun getWeeklyTotal(field: String, startDate: Instant, endDate: Instant, callback: (Int) -> Unit) {
         viewModelScope.launch {
             val total = when (field) {
                 "packa" -> repository.getPackaTotalForWeek(startDate, endDate)
@@ -202,7 +199,7 @@ class DailyInputViewModel @Inject constructor(
         }
     }
 
-    fun getAllPassengers(): Flow<List<DailyInput>> {
+    fun getAllPassengers(): Flow<List<Passenger>> {
         return repository.getAllPassengers()
     }
 

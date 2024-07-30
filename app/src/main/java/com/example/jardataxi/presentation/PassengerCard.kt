@@ -23,15 +23,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.example.jardataxi.DailyInputViewModel
 import com.example.jardataxi.R
+import com.example.jardataxi.presentation.screens.PassengerViewModel
 import com.example.jardataxi.ui.theme.rubikFamily
 
 @Composable
 fun PassengerCard(
     name: String,
-    viewModel: DailyInputViewModel
+    viewModel: PassengerViewModel
 ) {
     // Passenger Image Mapping
     val nameImage = imageMap[name] ?: R.drawable.taxi_passenger
