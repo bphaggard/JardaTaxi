@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -70,15 +69,14 @@ fun HomeScreen(viewModel: PassengerViewModel) {
         AlertDialog(
             onDismissRequest = { showDialog.value = false },
             title = {
-                LazyColumn(
+                Column(
                     modifier = Modifier
-                        .fillMaxHeight(0.8f),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Top
+                        .fillMaxHeight(0.8f)
                 ) {
-                    item { Row(
+                    Row(
                         modifier = Modifier
-                            .fillMaxWidth(),
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
@@ -86,75 +84,80 @@ fun HomeScreen(viewModel: PassengerViewModel) {
                         DialogueText(title = "Packa")
                         DialogueText(title = "Patrik")
                         DialogueText(title = "Date/Time")
-                    } }
-                    item { Spacer(modifier = Modifier.size(8.dp)) }
-                    item { HorizontalDivider() }
-                    item { Spacer(modifier = Modifier.size(8.dp)) }
-                    items(passengersList) {passenger ->
-                        val instant = passenger.date.toDate().toInstant()
-                        val dateTime = instant.atZone(ZoneId.systemDefault()).toLocalDateTime()
-                        val formatter = dateTime.format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss"))
+                    }
+                    HorizontalDivider() // Divider after the header
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxHeight(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Top
+                    ) {
+                        items(passengersList) {passenger ->
+                            val instant = passenger.date.toDate().toInstant()
+                            val dateTime = instant.atZone(ZoneId.systemDefault()).toLocalDateTime()
+                            val formatter = dateTime.format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss"))
 
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Column(
+                            Row(
                                 modifier = Modifier
-                                    .fillMaxHeight()
-                                    .width(50.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.Center
+                                    .fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween
                             ) {
-                                Text(
-                                    text = passenger.igor.toString(),
-                                    fontSize = 12.sp
-                                )
-                            }
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxHeight()
-                                    .width(50.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.Center
-                            ) {
-                                Text(
-                                    text = passenger.packa.toString(),
-                                    fontSize = 12.sp
-                                )
-                            }
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxHeight()
-                                    .width(50.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.Center
-                            ) {
-                                Text(
-                                    text = passenger.patrik.toString(),
-                                    fontSize = 12.sp
-                                )
-                            }
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxHeight(),
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.Center
-                            ) {
-                                Text(
-                                    text = formatter,
-                                    fontSize = 12.sp
-                                )
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxHeight()
+                                        .width(50.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.Center
+                                ) {
+                                    Text(
+                                        text = passenger.igor.toString(),
+                                        fontSize = 12.sp
+                                    )
+                                }
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxHeight()
+                                        .width(50.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.Center
+                                ) {
+                                    Text(
+                                        text = passenger.packa.toString(),
+                                        fontSize = 12.sp
+                                    )
+                                }
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxHeight()
+                                        .width(50.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.Center
+                                ) {
+                                    Text(
+                                        text = passenger.patrik.toString(),
+                                        fontSize = 12.sp
+                                    )
+                                }
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxHeight(),
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.Center
+                                ) {
+                                    Text(
+                                        text = formatter,
+                                        fontSize = 12.sp
+                                    )
+                                }
                             }
                         }
                     }
                 }
             },
-            confirmButton = { 
-                Button(onClick = { 
-                    showDialog.value = false }) 
+            confirmButton = {
+                Button(onClick = {
+                    showDialog.value = false })
                 {
                     Text(text = "Zavřít")
                 }
