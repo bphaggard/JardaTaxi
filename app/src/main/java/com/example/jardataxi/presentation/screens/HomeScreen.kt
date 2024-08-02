@@ -25,10 +25,13 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -49,7 +52,10 @@ import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(viewModel: PassengerViewModel) {
+fun HomeScreen(
+    viewModel: PassengerViewModel,
+    darkTheme: MutableState<Boolean>
+) {
 
     val rideIgor by viewModel.inputIgor
     val ridePacka by viewModel.inputPacka
@@ -183,7 +189,11 @@ fun HomeScreen(viewModel: PassengerViewModel) {
                     color = MaterialTheme.colorScheme.scrim
                 )
             },
-                colors = TopAppBarDefaults.topAppBarColors(Color.Transparent)
+                colors = TopAppBarDefaults.topAppBarColors(Color.Transparent),
+                actions = {
+                    ThemeSwitcher(darkTheme = darkTheme)
+                    Spacer(modifier = Modifier.width(15.dp))
+                }
             )
         },
         content = { innerPadding ->
@@ -342,5 +352,21 @@ fun DialogueText(title: String) {
         text = title,
         fontSize = 16.sp,
         fontWeight = FontWeight.Bold
+    )
+}
+
+@Composable
+fun ThemeSwitcher(
+    darkTheme: MutableState<Boolean>
+) {
+    Switch(
+        checked = darkTheme.value,
+        onCheckedChange = { darkTheme.value = it },
+        colors = SwitchDefaults.colors(
+            checkedTrackColor = MaterialTheme.colorScheme.secondaryContainer,
+            checkedThumbColor = MaterialTheme.colorScheme.primary,
+            uncheckedTrackColor = MaterialTheme.colorScheme.onSecondaryContainer,
+            uncheckedThumbColor = MaterialTheme.colorScheme.secondaryContainer
+        )
     )
 }

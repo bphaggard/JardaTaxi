@@ -1,6 +1,7 @@
 package com.example.jardataxi.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -11,7 +12,8 @@ import com.example.jardataxi.presentation.screens.SplashScreen
 @Composable
 fun NavGraph(
     navController: NavHostController,
-    viewModel: PassengerViewModel
+    viewModel: PassengerViewModel,
+    darkTheme: MutableState<Boolean>
 ) {
     NavHost(
         navController = navController,
@@ -25,7 +27,7 @@ fun NavGraph(
         composable(
             route = Screen.Home.route
         ) {
-            HomeScreen(viewModel)
+            HomeScreen(viewModel, darkTheme)
         }
     }
 }
