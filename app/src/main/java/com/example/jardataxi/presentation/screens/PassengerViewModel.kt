@@ -1,17 +1,25 @@
 package com.example.jardataxi.presentation.screens
 
+import android.app.Application
+import android.content.Context
+import android.content.SharedPreferences
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.jardataxi.domain.model.PassengerRepository
 import com.example.jardataxi.domain.Passenger
+import com.example.jardataxi.domain.model.PassengerRepository
+import com.example.jardataxi.presentation.getCurrentWeek
+import dagger.hilt.android.internal.Contexts.getApplication
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import java.time.DayOfWeek
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -20,7 +28,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class PassengerViewModel @Inject constructor(
-    private val repository: PassengerRepository
+    private val repository: PassengerRepository,
+    @ApplicationContext private val context: Context
 ): ViewModel() {
 
     // Ride Counter
@@ -132,13 +141,15 @@ class PassengerViewModel @Inject constructor(
     fun addDailyInput(dailyInput: Passenger) {
         viewModelScope.launch {
             repository.addInput(dailyInput)
-            val startDate = LocalDateTime.now().with(LocalTime.MIN)
-            val endDate = startDate.plusDays(6).with(LocalTime.MAX)
-            fetchWeeklyTotals(startDate, endDate) // Fetch weekly totals after adding data
+//            val startDate = LocalDateTime.now().with(LocalTime.MIN)
+//            val endDate = startDate.plusDays(6).with(LocalTime.MAX)
+            fetchWeeklyTotals() // Fetch weekly totals after adding data
         }
     }
 
     // CheckBox State Payed
+    private val currentWeek = getCurrentWeek()
+
     private val _checkBoxStateIgor = MutableStateFlow(false)
     val checkBoxStateIgor: StateFlow<Boolean> get() = _checkBoxStateIgor
 
@@ -148,12 +159,66 @@ class PassengerViewModel @Inject constructor(
     private val _checkBoxStatePatrik = MutableStateFlow(false)
     val checkBoxStatePatrik: StateFlow<Boolean> get() = _checkBoxStatePatrik
 
-    fun setCheckBoxState(name: String, checked: Boolean) {
-        when (name) {
-            "IGOR" -> _checkBoxStateIgor.value = checked
-            "PACKA" -> _checkBoxStatePacka.value = checked
-            "PATRIK" -> _checkBoxStatePatrik.value = checked
+//    fun setCheckBoxState(name: String, checked: Boolean) {
+//        when (name) {
+//            "IGOR" -> _checkBoxStateIgor.value = checked
+//            "PACKA" -> _checkBoxStatePacka.value = checked
+//            "PATRIK" -> _checkBoxStatePatrik.value = checked
+//        }
+//    }
+    private fun checkNewWeekAndInitializeStates() {
+        val sharedPreferences = context.getSharedPreferences("checkbox_prefs", Context.MODE_PRIVATE)
+        val lastSavedWeek = sharedPreferences.getInt("last_week", -1)
+        val currentWeek = getCurrentWeek()
+
+        if (currentWeek != lastSavedWeek) {
+            resetCheckBoxStates(sharedPreferences)
+        } else {
+            // Load saved states
+            _checkBoxStateIgor.value = sharedPreferences.getBoolean("IGOR", false)
+            _checkBoxStatePacka.value = sharedPreferences.getBoolean("PACKA", false)
+            _checkBoxStatePatrik.value = sharedPreferences.getBoolean("PATRIK", false)
         }
+    }
+
+    private fun resetCheckBoxStates(sharedPreferences: SharedPreferences) {
+        val editor = sharedPreferences.edit()
+        editor.putInt("last_week", getCurrentWeek())
+        editor.putBoolean("IGOR", false)
+        editor.putBoolean("PACKA", false)
+        editor.putBoolean("PATRIK", false)
+        editor.apply()
+
+        _checkBoxStateIgor.value = false
+        _checkBoxStatePacka.value = false
+        _checkBoxStatePatrik.value = false
+    }
+
+    // Set the checkbox state
+    fun setCheckBoxState(name: String, checked: Boolean) {
+        val sharedPreferences = context.getSharedPreferences("checkbox_prefs", Context.MODE_PRIVATE)
+        val editor = sharedPreferences.edit()
+
+        when (name) {
+            "IGOR" -> {
+                _checkBoxStateIgor.value = checked
+                editor.putBoolean("IGOR", checked)
+            }
+            "PACKA" -> {
+                _checkBoxStatePacka.value = checked
+                editor.putBoolean("PACKA", checked)
+            }
+            "PATRIK" -> {
+                _checkBoxStatePatrik.value = checked
+                editor.putBoolean("PATRIK", checked)
+            }
+        }
+        editor.apply()
+    }
+
+    init {
+        // Initialize checkboxes based on saved state or reset if it's a new week
+        checkNewWeekAndInitializeStates()
     }
 
     // Weekly Total for Passengers
@@ -167,12 +232,16 @@ class PassengerViewModel @Inject constructor(
     val patrikWeeklyTotal: StateFlow<Int> = _patrikWeeklyTotal
 
     init {
-        val startDate = LocalDateTime.now().with(LocalTime.MIN)
-        val endDate = startDate.plusDays(6).with(LocalTime.MAX)
-        fetchWeeklyTotals(startDate, endDate)
+//        val startDate = LocalDateTime.now().with(LocalTime.MIN)
+//        val endDate = startDate.plusDays(6).with(LocalTime.MAX)
+        fetchWeeklyTotals()
     }
 
-    private fun fetchWeeklyTotals(startDate: LocalDateTime, endDate: LocalDateTime) {
+    private fun fetchWeeklyTotals() {
+        val nowUtc = LocalDateTime.now(ZoneOffset.UTC) // Get current time in UTC
+        val startDate = nowUtc.with(DayOfWeek.MONDAY).with(LocalTime.MIN) // Start of the week (Monday) in UTC
+        val endDate = nowUtc.with(DayOfWeek.SUNDAY).with(LocalTime.MAX) // End of the week (Sunday) in UTC
+
         val startInstant = startDate.toInstant(ZoneOffset.UTC)
         val endInstant = endDate.toInstant(ZoneOffset.UTC)
 

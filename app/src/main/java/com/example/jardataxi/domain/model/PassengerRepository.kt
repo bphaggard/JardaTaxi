@@ -4,6 +4,7 @@ import com.example.jardataxi.domain.Passenger
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
+import com.google.firebase.firestore.QuerySnapshot
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -27,8 +28,8 @@ class PassengerRepository @Inject constructor(
 
 //    private suspend fun getTotalForWeek(field: String, startDate: Instant, endDate: Instant): Int {
 //        return try {
-//            val startTimestamp = startDate.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
-//            val endTimestamp = endDate.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+//            val startTimestamp = Timestamp(startDate.epochSecond, startDate.nano)
+//            val endTimestamp = Timestamp(endDate.epochSecond, endDate.nano)
 //
 //            val result: QuerySnapshot = db.collection("dailyInputs")
 //                .whereGreaterThanOrEqualTo("date", startTimestamp)

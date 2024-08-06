@@ -1,5 +1,6 @@
 package com.example.jardataxi.presentation.screens
 
+import android.annotation.SuppressLint
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -56,7 +57,6 @@ fun HomeScreen(
     viewModel: PassengerViewModel,
     darkTheme: MutableState<Boolean>
 ) {
-
     val rideIgor by viewModel.inputIgor
     val ridePacka by viewModel.inputPacka
     val ridePatrik by viewModel.inputPatrik
@@ -91,7 +91,7 @@ fun HomeScreen(
                         DialogueText(title = "Patrik")
                         DialogueText(title = "Date/Time")
                     }
-                    HorizontalDivider() // Divider after the header
+                    HorizontalDivider()
                     LazyColumn(
                         modifier = Modifier
                             .fillMaxHeight(),
@@ -298,15 +298,19 @@ fun HomeScreen(
     )
 }
 
+@SuppressLint("UnrememberedMutableState")
 @Composable
 fun RowItem(
     name: String,
     value: Int,
     viewModel: PassengerViewModel
 ) {
-    val igorCheckBox by viewModel.checkBoxStateIgor.collectAsState()
-    val packaCheckBox by viewModel.checkBoxStatePacka.collectAsState()
-    val patrikCheckBox by viewModel.checkBoxStatePatrik.collectAsState()
+    val checkBoxState by when (name) {
+        "IGOR" -> viewModel.checkBoxStateIgor.collectAsState()
+        "PACKA" -> viewModel.checkBoxStatePacka.collectAsState()
+        "PATRIK" -> viewModel.checkBoxStatePatrik.collectAsState()
+        else -> mutableStateOf(false) // Default state if name doesn't match
+    }
     
     Row(
         modifier = Modifier
@@ -332,12 +336,7 @@ fun RowItem(
             horizontalAlignment = Alignment.End
         ) {
             Checkbox(
-                checked = when (name) {
-                    "IGOR" -> igorCheckBox
-                    "PACKA" -> packaCheckBox
-                    "PATRIK" -> patrikCheckBox
-                    else -> false
-                },
+                checked = checkBoxState,
                 onCheckedChange = { checked ->
                     viewModel.setCheckBoxState(name, checked)
                 }

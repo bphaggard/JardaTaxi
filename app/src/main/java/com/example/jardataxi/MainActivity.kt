@@ -28,15 +28,15 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            val dartTheme = rememberSaveable { mutableStateOf(false) }
+            val darkTheme = rememberSaveable { mutableStateOf(false) }
 
-            JardaTaxiTheme(darkTheme = dartTheme.value) {
+            JardaTaxiTheme(darkTheme = darkTheme.value) {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
                     navController = rememberNavController()
-                    NavGraph(navController, viewModel, dartTheme)
+                    NavGraph(navController, viewModel, darkTheme)
                 }
             }
         }
