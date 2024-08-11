@@ -4,7 +4,6 @@ import com.example.jardataxi.domain.Passenger
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
-import com.google.firebase.firestore.QuerySnapshot
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -25,25 +24,6 @@ class PassengerRepository @Inject constructor(
             e.printStackTrace()
         }
     }
-
-//    private suspend fun getTotalForWeek(field: String, startDate: Instant, endDate: Instant): Int {
-//        return try {
-//            val startTimestamp = Timestamp(startDate.epochSecond, startDate.nano)
-//            val endTimestamp = Timestamp(endDate.epochSecond, endDate.nano)
-//
-//            val result: QuerySnapshot = db.collection("dailyInputs")
-//                .whereGreaterThanOrEqualTo("date", startTimestamp)
-//                .whereLessThanOrEqualTo("date", endTimestamp)
-//                .orderBy("date", Query.Direction.ASCENDING)
-//                .get()
-//                .await()
-//
-//            result.documents.sumOf { it.getLong(field)?.toInt() ?: 0 }
-//        } catch (e: Exception) {
-//            e.printStackTrace()
-//            0
-//        }
-//    }
 
     suspend fun getPackaTotalForWeek(startDate: Instant, endDate: Instant): Int {
         return db.collection("dailyInputs")

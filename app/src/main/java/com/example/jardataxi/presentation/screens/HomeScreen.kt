@@ -21,7 +21,6 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -236,7 +235,7 @@ fun HomeScreen(
                     Card(
                         modifier = Modifier
                             .fillMaxWidth(0.9f)
-                            .height(250.dp),
+                            .height(220.dp),
                         shape = RoundedCornerShape(22.dp),
                         colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surfaceVariant)
                     ) {
@@ -267,17 +266,17 @@ fun HomeScreen(
                                     fontSize = 16.sp
                                 )
                                 Text(
-                                    text = "Zaplaceno:",
+                                    text = "Celkem za týden:",
                                     fontSize = 16.sp
                                 )
                             }
                             Spacer(modifier = Modifier.height(8.dp))
-                            RowItem(name = "IGOR", igorWeeklyTotal, viewModel)
-                            Spacer(modifier = Modifier.height(4.dp))
-                            RowItem(name = "PACKA", packaWeeklyTotal, viewModel)
-                            Spacer(modifier = Modifier.height(4.dp))
-                            RowItem(name = "PATRIK", patrikWeeklyTotal, viewModel)
-                            Spacer(modifier = Modifier.height(4.dp))
+                            RowItem(name = "IGOR", igorWeeklyTotal)
+                            Spacer(modifier = Modifier.height(8.dp))
+                            RowItem(name = "PACKA", packaWeeklyTotal)
+                            Spacer(modifier = Modifier.height(8.dp))
+                            RowItem(name = "PATRIK", patrikWeeklyTotal)
+                            Spacer(modifier = Modifier.height(8.dp))
                         }
                     }
                     Spacer(modifier = Modifier.height(20.dp))
@@ -302,16 +301,9 @@ fun HomeScreen(
 @Composable
 fun RowItem(
     name: String,
-    value: Int,
-    viewModel: PassengerViewModel
+    value: Int
+
 ) {
-    val checkBoxState by when (name) {
-        "IGOR" -> viewModel.checkBoxStateIgor.collectAsState()
-        "PACKA" -> viewModel.checkBoxStatePacka.collectAsState()
-        "PATRIK" -> viewModel.checkBoxStatePatrik.collectAsState()
-        else -> mutableStateOf(false) // Default state if name doesn't match
-    }
-    
     Row(
         modifier = Modifier
             .fillMaxWidth(),
@@ -319,7 +311,7 @@ fun RowItem(
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Column(
-            modifier = Modifier.fillMaxWidth(0.3f),
+            modifier = Modifier.fillMaxHeight(),
             horizontalAlignment = Alignment.Start
         ) {
             Text(
@@ -329,17 +321,14 @@ fun RowItem(
                 fontSize = 16.sp
             )
         }
-        Spacer(modifier = Modifier.width(10.dp))
-        Text(text = value.toString())
-        Spacer(modifier = Modifier.width(10.dp))
         Column(
+            modifier = Modifier.fillMaxHeight(),
             horizontalAlignment = Alignment.End
         ) {
-            Checkbox(
-                checked = checkBoxState,
-                onCheckedChange = { checked ->
-                    viewModel.setCheckBoxState(name, checked)
-                }
+            Text(
+                text = "$value Kč",
+                fontFamily = rubikFamily,
+                fontSize = 16.sp
             )
         }
     }
