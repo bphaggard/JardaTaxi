@@ -47,6 +47,8 @@ import com.example.jardataxi.domain.Passenger
 import com.example.jardataxi.presentation.PassengerCard
 import com.example.jardataxi.presentation.getCurrentWeek
 import com.example.jardataxi.ui.theme.rubikFamily
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
@@ -69,6 +71,9 @@ fun HomeScreen(
     val packaWeeklyTotal by viewModel.packaWeeklyTotal.collectAsState()
     val igorWeeklyTotal by viewModel.igorWeeklyTotal.collectAsState()
     val patrikWeeklyTotal by viewModel.patrikWeeklyTotal.collectAsState()
+
+    val isRefreshing by viewModel.isRefreshing.collectAsState()
+    val swipeRefreshState = rememberSwipeRefreshState(isRefreshing = isRefreshing)
     
     if (showDialog.value) {
         AlertDialog(
@@ -196,100 +201,105 @@ fun HomeScreen(
             )
         },
         content = { innerPadding ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
-                    .verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.Top
+            SwipeRefresh(
+                state = swipeRefreshState,
+                onRefresh = viewModel::refreshWeeklyTotals
             ) {
                 Column(
-                    modifier = Modifier.fillMaxSize(),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding)
+                        .verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.Top
                 ) {
-                    PassengerCard(name = "IGOR", viewModel)
-                    Spacer(modifier = Modifier.height(8.dp))
-                    PassengerCard(name = "PACKA", viewModel)
-                    Spacer(modifier = Modifier.height(8.dp))
-                    PassengerCard(name = "PATRIK", viewModel)
-                    Spacer(modifier = Modifier.height(20.dp))
-                    Button(
-                        onClick = { viewModel.addDailyInput(
-                            Passenger(
-                                igor = rideIgor,
-                                packa = ridePacka,
-                                patrik = ridePatrik
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        PassengerCard(name = "IGOR", viewModel)
+                        Spacer(modifier = Modifier.height(8.dp))
+                        PassengerCard(name = "PACKA", viewModel)
+                        Spacer(modifier = Modifier.height(8.dp))
+                        PassengerCard(name = "PATRIK", viewModel)
+                        Spacer(modifier = Modifier.height(20.dp))
+                        Button(
+                            onClick = { viewModel.addDailyInput(
+                                Passenger(
+                                    igor = rideIgor,
+                                    packa = ridePacka,
+                                    patrik = ridePatrik
+                                )
                             )
-                        )
-                            viewModel.clearAllInputs()
-                            Toast.makeText(context, "Jízdy uloženy!", Toast.LENGTH_SHORT).show()
-                        }
-                    ) {
-                        Text(
-                            text = "Uložit Jízdy",
-                            fontFamily = rubikFamily,
-                            fontWeight = FontWeight.Medium
-                        )
-                    }
-                    Spacer(modifier = Modifier.height(20.dp))
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth(0.9f)
-                            .height(220.dp),
-                        shape = RoundedCornerShape(22.dp),
-                        colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surfaceVariant)
-                    ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(10.dp)
-                                .verticalScroll(rememberScrollState()),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Top
+                                viewModel.clearAllInputs()
+                                Toast.makeText(context, "Jízdy uloženy!", Toast.LENGTH_SHORT).show()
+                            }
                         ) {
                             Text(
-                                text = "Týdenní cena:",
+                                text = "Uložit Jízdy",
                                 fontFamily = rubikFamily,
-                                fontWeight = FontWeight.Black,
-                                fontSize = 18.sp
+                                fontWeight = FontWeight.Medium
                             )
-                            Spacer(modifier = Modifier.height(4.dp))
-                            HorizontalDivider()
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.SpaceBetween
+                        }
+                        Spacer(modifier = Modifier.height(20.dp))
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth(0.9f)
+                                .height(220.dp),
+                            shape = RoundedCornerShape(22.dp),
+                            colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surfaceVariant)
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(10.dp)
+                                    .verticalScroll(rememberScrollState()),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Top
                             ) {
                                 Text(
-                                    text = "Týden: $currentWeek",
-                                    fontSize = 16.sp
+                                    text = "Týdenní cena:",
+                                    fontFamily = rubikFamily,
+                                    fontWeight = FontWeight.Black,
+                                    fontSize = 18.sp
                                 )
-                                Text(
-                                    text = "Celkem za týden:",
-                                    fontSize = 16.sp
-                                )
+                                Spacer(modifier = Modifier.height(4.dp))
+                                HorizontalDivider()
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    Text(
+                                        text = "Týden: $currentWeek",
+                                        fontSize = 16.sp
+                                    )
+                                    Text(
+                                        text = "Celkem za týden:",
+                                        fontSize = 16.sp
+                                    )
+                                }
+                                Spacer(modifier = Modifier.height(8.dp))
+                                RowItem(name = "IGOR", igorWeeklyTotal)
+                                Spacer(modifier = Modifier.height(8.dp))
+                                RowItem(name = "PACKA", packaWeeklyTotal)
+                                Spacer(modifier = Modifier.height(8.dp))
+                                RowItem(name = "PATRIK", patrikWeeklyTotal)
+                                Spacer(modifier = Modifier.height(8.dp))
                             }
-                            Spacer(modifier = Modifier.height(8.dp))
-                            RowItem(name = "IGOR", igorWeeklyTotal)
-                            Spacer(modifier = Modifier.height(8.dp))
-                            RowItem(name = "PACKA", packaWeeklyTotal)
-                            Spacer(modifier = Modifier.height(8.dp))
-                            RowItem(name = "PATRIK", patrikWeeklyTotal)
-                            Spacer(modifier = Modifier.height(8.dp))
                         }
-                    }
-                    Spacer(modifier = Modifier.height(20.dp))
-                    Button(
-                        onClick = {
-                            showDialog.value = true
+                        Spacer(modifier = Modifier.height(20.dp))
+                        Button(
+                            onClick = {
+                                showDialog.value = true
+                            }
+                        ) {
+                            Text(
+                                text = "Zobrazit Databázi",
+                                fontFamily = rubikFamily,
+                                fontWeight = FontWeight.Medium
+                            )
                         }
-                    ) {
-                        Text(
-                            text = "Zobrazit Databázi",
-                            fontFamily = rubikFamily,
-                            fontWeight = FontWeight.Medium
-                        )
                     }
                 }
             }

@@ -13,6 +13,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.time.DayOfWeek
 import java.time.Instant
@@ -26,6 +27,23 @@ class PassengerViewModel @Inject constructor(
     private val repository: PassengerRepository,
     @ApplicationContext private val context: Context
 ): ViewModel() {
+
+    //Pull To Refresh
+    private val _isRefreshing = MutableStateFlow(false)
+    val isRefreshing = _isRefreshing.asStateFlow()
+    //val isRefreshing: StateFlow<Boolean> = _isRefreshing
+
+    init {
+        refreshWeeklyTotals()
+    }
+
+    fun refreshWeeklyTotals() {
+        viewModelScope.launch {
+            _isRefreshing.value = true
+            fetchWeeklyTotals()
+            _isRefreshing.value = false
+        }
+    }
 
     // Ride Counter
     private val _rideIgorHalfCount = mutableIntStateOf(0)
