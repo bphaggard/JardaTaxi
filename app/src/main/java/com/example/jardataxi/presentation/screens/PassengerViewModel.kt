@@ -31,7 +31,6 @@ class PassengerViewModel @Inject constructor(
     //Pull To Refresh
     private val _isRefreshing = MutableStateFlow(false)
     val isRefreshing = _isRefreshing.asStateFlow()
-    //val isRefreshing: StateFlow<Boolean> = _isRefreshing
 
     init {
         refreshWeeklyTotals()
