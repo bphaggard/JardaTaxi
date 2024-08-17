@@ -10,9 +10,9 @@ data class Passenger(
     val date: Timestamp = Timestamp.now()
 )
 
-data class PassengerCheckBoxState(
-    val igorBox: Boolean = false,
-    val packaBox: Boolean = false,
-    val patrikBox: Boolean = false,
-    val date: Timestamp = Timestamp.now()
+data class PassengersWeekValues(
+    val week: Int = 0,
+    val igorWeek: Int = 0,
+    val packaWeek: Int = 0,
+    val patrikWeek: Int = 0
 )

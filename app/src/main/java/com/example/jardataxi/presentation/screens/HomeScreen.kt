@@ -64,9 +64,11 @@ fun HomeScreen(
 
     val context = LocalContext.current
     val currentWeek = remember { getCurrentWeek() }
-    val showDialog = remember { mutableStateOf(false) }
+    val showDayDialog = remember { mutableStateOf(false) }
+    val showWeekDialog = remember { mutableStateOf(false) }
 
     val passengersList by viewModel.getAllPassengers().collectAsState(initial = emptyList())
+    val weekValuesList by viewModel.getAllWeekValues().collectAsState(initial = emptyList())
 
     val packaWeeklyTotal by viewModel.packaWeeklyTotal.collectAsState()
     val igorWeeklyTotal by viewModel.igorWeeklyTotal.collectAsState()
@@ -75,9 +77,9 @@ fun HomeScreen(
     val isRefreshing by viewModel.isRefreshing.collectAsState()
     val swipeRefreshState = rememberSwipeRefreshState(isRefreshing = isRefreshing)
     
-    if (showDialog.value) {
+    if (showDayDialog.value) {
         AlertDialog(
-            onDismissRequest = { showDialog.value = false },
+            onDismissRequest = { showDayDialog.value = false },
             title = {
                 Column(
                     modifier = Modifier
@@ -93,7 +95,7 @@ fun HomeScreen(
                         DialogueText(title = "Igor")
                         DialogueText(title = "Packa")
                         DialogueText(title = "Patrik")
-                        DialogueText(title = "Date/Time")
+                        DialogueText(title = "Datum / Čas")
                     }
                     HorizontalDivider()
                     LazyColumn(
@@ -167,14 +169,119 @@ fun HomeScreen(
             },
             confirmButton = {
                 Button(onClick = {
-                    showDialog.value = false })
+                    showDayDialog.value = false })
                 {
                     Text(text = "Zavřít")
                 }
             },
             dismissButton = {
                 Button(onClick = {
-                    showDialog.value = false
+                    showDayDialog.value = false
+                    viewModel.deleteDatabase()
+                }) {
+                    Text(text = "Smazat Databázi")
+                }
+            }
+        )
+    }
+
+    if (showWeekDialog.value) {
+        AlertDialog(
+            onDismissRequest = { showWeekDialog.value = false },
+            title = {
+                Column(
+                    modifier = Modifier
+                        .fillMaxHeight(0.8f)
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        DialogueText(title = "Igor")
+                        DialogueText(title = "Packa")
+                        DialogueText(title = "Patrik")
+                        DialogueText(title = "Týden")
+                    }
+                    HorizontalDivider()
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxHeight(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Top
+                    ) {
+                        items(weekValuesList) {week ->
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxHeight()
+                                        .width(50.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.Center
+                                ) {
+                                    Text(
+                                        text = week.igorWeek.toString(),
+                                        fontSize = 12.sp
+                                    )
+                                }
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxHeight()
+                                        .width(50.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.Center
+                                ) {
+                                    Text(
+                                        text = week.packaWeek.toString(),
+                                        fontSize = 12.sp
+                                    )
+                                }
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxHeight()
+                                        .width(50.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.Center
+                                ) {
+                                    Text(
+                                        text = week.patrikWeek.toString(),
+                                        fontSize = 12.sp
+                                    )
+                                }
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxHeight()
+                                        .width(50.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.Center
+                                ) {
+                                    Text(
+                                        text = week.week.toString(),
+                                        fontSize = 12.sp
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                Button(onClick = {
+                    showWeekDialog.value = false })
+                {
+                    Text(text = "Zavřít")
+                }
+            },
+            dismissButton = {
+                Button(onClick = {
+                    showWeekDialog.value = false
                     viewModel.deleteDatabase()
                 }) {
                     Text(text = "Smazat Databázi")
@@ -289,16 +396,32 @@ fun HomeScreen(
                             }
                         }
                         Spacer(modifier = Modifier.height(20.dp))
-                        Button(
-                            onClick = {
-                                showDialog.value = true
-                            }
+                        Row(
+                            modifier = Modifier.fillMaxWidth(0.9f),
+                            horizontalArrangement = Arrangement.SpaceEvenly
                         ) {
-                            Text(
-                                text = "Zobrazit Databázi",
-                                fontFamily = rubikFamily,
-                                fontWeight = FontWeight.Medium
-                            )
+                            Button(
+                                onClick = {
+                                    showDayDialog.value = true
+                                }
+                            ) {
+                                Text(
+                                    text = "Denní databáze",
+                                    fontFamily = rubikFamily,
+                                    fontWeight = FontWeight.Medium
+                                )
+                            }
+                            Button(
+                                onClick = {
+                                    showWeekDialog.value = true
+                                }
+                            ) {
+                                Text(
+                                    text = "Týdenní ceny jízd",
+                                    fontFamily = rubikFamily,
+                                    fontWeight = FontWeight.Medium
+                                )
+                            }
                         }
                     }
                 }

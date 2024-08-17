@@ -7,9 +7,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.jardataxi.domain.Passenger
+import com.example.jardataxi.domain.PassengersWeekValues
 import com.example.jardataxi.domain.model.PassengerRepository
+import com.example.jardataxi.presentation.getCurrentWeek
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -20,6 +23,7 @@ import java.time.Instant
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.ZoneOffset
+import java.time.temporal.ChronoUnit
 import javax.inject.Inject
 
 @HiltViewModel
@@ -39,6 +43,7 @@ class PassengerViewModel @Inject constructor(
     fun refreshWeeklyTotals() {
         viewModelScope.launch {
             _isRefreshing.value = true
+            delay(1000L)
             fetchWeeklyTotals()
             _isRefreshing.value = false
         }
@@ -152,8 +157,14 @@ class PassengerViewModel @Inject constructor(
 
     fun addDailyInput(dailyInput: Passenger) {
         viewModelScope.launch {
-            repository.addInput(dailyInput)
+            repository.addInput(dailyInput, context)
             fetchWeeklyTotals() // Fetch weekly totals after adding data
+        }
+    }
+
+    fun addWeekValue(weekValue: PassengersWeekValues) {
+        viewModelScope.launch {
+            repository.addWeekValue(weekValue, context)
         }
     }
 
@@ -188,6 +199,7 @@ class PassengerViewModel @Inject constructor(
         getWeeklyTotal("patrik", startInstant, endInstant) { total ->
             _patrikWeeklyTotal.value = total
         }
+        saveWeeklyTotals()
     }
 
     private fun getWeeklyTotal(field: String, startDate: Instant, endDate: Instant, callback: (Int) -> Unit) {
@@ -202,8 +214,41 @@ class PassengerViewModel @Inject constructor(
         }
     }
 
+    private suspend fun areWeekValuesAlreadySaved(): Boolean {
+        val currentWeek = getCurrentWeek()
+        return repository.checkIfValuesExistForWeek(currentWeek)
+    }
+
+    //Saving weekly values to database
+    private fun saveWeeklyTotals() {
+        viewModelScope.launch {
+            val nowUtc = LocalDateTime.now(ZoneOffset.UTC)
+            val currentWeek = getCurrentWeek()
+
+            // Check if it's Saturday and values for the current week are not already stored
+            if (nowUtc.dayOfWeek == DayOfWeek.SATURDAY && !areWeekValuesAlreadySaved()) {
+                val weeklyValues = PassengersWeekValues(
+                    igorWeek = _igorWeeklyTotal.value,
+                    packaWeek = _packaWeeklyTotal.value,
+                    patrikWeek = _patrikWeeklyTotal.value,
+                    week = currentWeek
+                )
+
+                try {
+                    addWeekValue(weeklyValues)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+        }
+    }
+
     fun getAllPassengers(): Flow<List<Passenger>> {
         return repository.getAllPassengers()
+    }
+
+    fun getAllWeekValues(): Flow<List<PassengersWeekValues>> {
+        return repository.getAllWeekValues()
     }
 
     fun deleteDatabase() {

@@ -40,9 +40,9 @@ class MainActivity : ComponentActivity() {
 
             JardaTaxiTheme(darkTheme = darkTheme.value) {
                 val status by connectivityObserver.observe().collectAsState(
-                    initial = ConnectivityObserver.Status.Unavailable
+                    initial = ConnectivityObserver.Status.Nedostupné
                 )
-                Toast.makeText(LocalContext.current, "Internet connection: $status", Toast.LENGTH_SHORT).show()
+                Toast.makeText(LocalContext.current, "Připojení k internetu: $status", Toast.LENGTH_SHORT).show()
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
