@@ -1,4 +1,4 @@
-JardaTaxi is app for my colegues for tracking their ride counts and costs every week. App is not finished yet.
+JardaTaxi is app for my colegues for tracking their ride counts and costs every week.
 
 Main branch contains Room Database to store rides to local database and count by week spends for each passenger.
 Firebase branch contains Firebase Firestore database to store rides to cloud and count by week spends for each passenger. 
