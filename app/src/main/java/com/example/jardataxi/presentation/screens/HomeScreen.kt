@@ -282,7 +282,7 @@ fun HomeScreen(
             dismissButton = {
                 Button(onClick = {
                     showWeekDialog.value = false
-                    viewModel.deleteDatabase()
+                    viewModel.deleteWeekValues()
                 }) {
                     Text(text = "Smazat Databázi")
                 }
@@ -406,7 +406,7 @@ fun HomeScreen(
                                 }
                             ) {
                                 Text(
-                                    text = "Denní databáze",
+                                    text = "Databáze Jízd",
                                     fontFamily = rubikFamily,
                                     fontWeight = FontWeight.Medium
                                 )
@@ -417,7 +417,7 @@ fun HomeScreen(
                                 }
                             ) {
                                 Text(
-                                    text = "Týdenní ceny jízd",
+                                    text = "Databáze Cen",
                                     fontFamily = rubikFamily,
                                     fontWeight = FontWeight.Medium
                                 )

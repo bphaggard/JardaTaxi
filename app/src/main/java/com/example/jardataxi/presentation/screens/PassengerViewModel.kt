@@ -257,6 +257,12 @@ class PassengerViewModel @Inject constructor(
         }
     }
 
+    fun deleteWeekValues() {
+        viewModelScope.launch {
+            repository.deleteWeekValues()
+        }
+    }
+
     fun clearAllInputs() {
         val inputs = listOf(_inputIgor, _inputPacka, _inputPatrik)
         val buttonStates = listOf(

@@ -98,6 +98,20 @@ class PassengerRepository @Inject constructor(
         }
     }
 
+    suspend fun deleteWeekValues() {
+        try {
+            val batch = db.batch()
+            val collection = db.collection("weekValues")
+            val snapshot = collection.get().await()
+            for (document in snapshot.documents) {
+                batch.delete(document.reference)
+            }
+            batch.commit().await()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
     fun getAllPassengers(): Flow<List<Passenger>> = callbackFlow {
         val listenerRegistration = db.collection("dailyInputs")
             .orderBy("date", Query.Direction.ASCENDING)
